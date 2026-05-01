@@ -1,0 +1,35 @@
+name: Build and release whitelist geodata
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch hxehex whitelist sources
+        run: |
+          ./scripts/fetch-hxehex.sh
+
+      - name: Build geodata
+        run: |
+          python3 ./scripts/build-geodata.py
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: geodata-${{ github.run_number }}
+          name: whitelist geodata ${{ github.run_number }}
+          generate_release_notes: true
+          files: |
+            xray/geosite.dat
+            xray/geoip.dat
