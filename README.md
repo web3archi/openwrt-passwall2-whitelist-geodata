@@ -2,7 +2,7 @@
 
 **Язык:** Русский | [English](README.en.md)
 
-Репозиторий для конвертации whitelist-данных из проекта [hxehex/russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist) в файлы `geosite.dat` и `geoip.dat`, пригодные для использования в **PassWall2 на OpenWrt**.[web:148]
+Репозиторий для конвертации whitelist-данных из проекта [hxehex/russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist) в файлы `geosite.dat` и `geoip.dat`, пригодные для использования в **PassWall2 на OpenWrt**.
 
 Основной сценарий использования: **PassWall2 + Xray** на роутерах с ограниченными ресурсами, где требуется логика: **whitelist-ресурсы идут напрямую, остальное — через прокси/VPN**.
 
@@ -16,11 +16,11 @@
 
 Репозиторий:
 
-- забирает текстовые whitelist-списки из upstream-проекта [hxehex/russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist);[web:148]
+- забирает текстовые whitelist-списки из upstream-проекта [hxehex/russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist);
 - использует следующие upstream-файлы:
   - [`whitelist.txt`](https://github.com/hxehex/russia-mobile-internet-whitelist/blob/main/whitelist.txt) — домены;
   - [`ipwhitelist.txt`](https://github.com/hxehex/russia-mobile-internet-whitelist/blob/main/ipwhitelist.txt) — одиночные IP-адреса;
-  - [`cidrwhitelist.txt`](https://github.com/hxehex/russia-mobile-internet-whitelist/blob/main/cidrwhitelist.txt) — CIDR-подсети;[web:148]
+  - [`cidrwhitelist.txt`](https://github.com/hxehex/russia-mobile-internet-whitelist/blob/main/cidrwhitelist.txt) — CIDR-подсети;
 - нормализует входные данные;
 - собирает:
   - `geosite.dat` — доменный whitelist для Xray;
@@ -45,7 +45,7 @@
 - **Router:** Asus RT-AX53U / RT-AX1800U
 - **SoC / target:** MediaTek MT7621, `ramips/mt7621`
 - **Architecture:** `mipsel_24kc`
-- **OpenWrt:** 23.05.5[web:149]
+- **OpenWrt:** 23.05.5
 - **PassWall2:** `luci-app-passwall2`
 - **Backend:** Xray с использованием `geosite.dat` и `geoip.dat` из `/usr/share/v2ray/`
 
@@ -57,6 +57,7 @@
 openwrt-passwall2-whitelist-geodata/
 ├── README.md
 ├── README.en.md
+├── LICENSE
 ├── .gitignore
 ├── .github/
 │   └── workflows/
@@ -87,7 +88,7 @@ openwrt-passwall2-whitelist-geodata/
 
 ### 1. Загрузка данных
 
-`scripts/fetch_sources.sh` скачивает upstream-списки из GitHub-репозитория источника.[web:148]
+`scripts/fetch_sources.sh` скачивает upstream-списки из GitHub-репозитория источника.
 
 ### 2. Нормализация
 
@@ -173,9 +174,7 @@ service passwall2 restart
 Проект задуман как **свободное и открытое программное обеспечение**.
 
 - Скрипты, workflow-файлы и проектная обвязка могут использоваться, изменяться и распространяться в рамках лицензии репозитория.
-- Исходные whitelist-данные сохраняют привязку к upstream-источнику: [hxehex/russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist).[web:148]
-
-Если отдельная лицензия ещё не добавлена, разумный дефолт для такого репозитория — MIT License.
+- Исходные whitelist-данные сохраняют привязку к upstream-источнику: [hxehex/russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist).
 
 ## Примечание
 
