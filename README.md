@@ -1,105 +1,148 @@
 # openwrt-passwall2-whitelist-geodata
 
-Репозиторий для **конвертации белых списков (whitelist) из проекта `hxehex/russia-mobile-internet-whitelist`**
-в файлы `geosite.dat` и `geoip.dat`, пригодные для использования в **PassWall2 на OpenWrt**.
+**Язык:** Русский | [English](README.en.md)
 
-Основной сценарий: PassWall2 (Xray backend) на роутерах класса Asus RT‑AX53U / RT‑AX1800U (ramips/mt7621),
-где требуется режим «только whitelisting‑ресурсы идут напрямую, остальное через прокси».
+Репозиторий для конвертации whitelist-данных из проекта [hxehex/russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist) в файлы `geosite.dat` и `geoip.dat`, пригодные для использования в **PassWall2 на OpenWrt**.[web:148]
 
-## Цели и ограничения
+Основной сценарий использования: **PassWall2 + Xray** на роутерах с ограниченными ресурсами, где требуется логика: **whitelist-ресурсы идут напрямую, остальное — через прокси/VPN**.
 
-### Что делает этот репозиторий
+## Зачем нужен проект
 
-- Забирает whitelist‑данные из проекта
-  [`hxehex/russia-mobile-internet-whitelist`](https://github.com/hxehex/russia-mobile-internet-whitelist):
-  - домены (`whitelist.txt`);
-  - IP‑адреса (`ipwhitelist.txt`);
-  - CIDR‑диапазоны (`cidrwhitelist.txt`).
-- Дополняет их локальными списками администратора (дополнительные домены и CIDR).
-- Генерирует из них:
+Этот проект сделан прежде всего для **роутеров с маленькой памятью и ограниченными ресурсами**, где использование больших универсальных geodata-наборов часто избыточно или просто неудобно.
+
+Поэтому архитектура проекта намеренно ориентирована на **небольшие, целевые и практичные списки**, которые решают конкретную задачу маршрутизации в PassWall2 и лучше подходят для бюджетных OpenWrt-устройств. Иными словами, здесь ставка сделана не на «гигантский справочник на все случаи жизни», а на компактный whitelist, который реально нужен в работе.
+
+## Что делает репозиторий
+
+Репозиторий:
+
+- забирает текстовые whitelist-списки из upstream-проекта [hxehex/russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist);[web:148]
+- использует следующие upstream-файлы:
+  - [`whitelist.txt`](https://github.com/hxehex/russia-mobile-internet-whitelist/blob/main/whitelist.txt) — домены;
+  - [`ipwhitelist.txt`](https://github.com/hxehex/russia-mobile-internet-whitelist/blob/main/ipwhitelist.txt) — одиночные IP-адреса;
+  - [`cidrwhitelist.txt`](https://github.com/hxehex/russia-mobile-internet-whitelist/blob/main/cidrwhitelist.txt) — CIDR-подсети;[web:148]
+- нормализует входные данные;
+- собирает:
   - `geosite.dat` — доменный whitelist для Xray;
-  - `geoip.dat` — whitelist IP/CIDR для Xray.
-- Публикует эти файлы в GitHub Releases, чтобы их можно было использовать в PassWall2 через обновление geodata.
+  - `geoip.dat` — whitelist IP/CIDR для Xray;
+- публикует готовые файлы в GitHub Releases для использования в OpenWrt / PassWall2.
 
-### Чего этот репозиторий НЕ делает
+## Что репозиторий не делает
 
-- Не генерирует и не поддерживает чёрные списки (blacklist).
-- Не работает напрямую с sing-box (`.json` / `.srs`).
-- Не решает общую маршрутизацию OpenWrt — только предоставляет geodata, которые далее использует PassWall2.
+Этот репозиторий **не**:
 
-## Целевая платформа
+- поддерживает blacklist-наборы;
+- генерирует sing-box-форматы `.json` или `.srs`;
+- решает общую маршрутизацию OpenWrt сам по себе;
+- заменяет PassWall2, Xray, policy routing, nftables или firewall-конфигурацию.
 
-Репозиторий разрабатывается и тестируется в следующей конфигурации:
+Он только готовит компактные geodata, которые потом использует PassWall2 / Xray.
 
-- Router: Asus RT‑AX53U / RT‑AX1800U (Wi‑Fi 6, ramips/mt7621, mipsel_24kc)
-- OpenWrt: 23.05.5 (официальные образы для `ramips/mt7621`)
-- PassWall2: luci-app-passwall2
-- Backend: Xray (использующий `geosite.dat` / `geoip.dat` из каталога `/usr/share/v2ray/`)
+## Тестовая платформа
 
-Использование на других устройствах и версиях OpenWrt возможно, но требует отдельной проверки.
+Репозиторий разрабатывался и тестировался в следующей конфигурации:
+
+- **Router:** Asus RT-AX53U / RT-AX1800U
+- **SoC / target:** MediaTek MT7621, `ramips/mt7621`
+- **Architecture:** `mipsel_24kc`
+- **OpenWrt:** 23.05.5[web:149]
+- **PassWall2:** `luci-app-passwall2`
+- **Backend:** Xray с использованием `geosite.dat` и `geoip.dat` из `/usr/share/v2ray/`
+
+На других устройствах и версиях OpenWrt всё тоже может работать, но это нужно проверять отдельно.
 
 ## Структура репозитория
 
 ```text
 openwrt-passwall2-whitelist-geodata/
 ├── README.md
-├── domains/
-│   ├── whitelist-hxehex.txt      # домены из hxehex/whitelist.txt (сырой импорт)
-│   └── custom.txt                # дополнительные домены администратора
-├── ip/
-│   ├── whitelist-ip.txt          # IP из hxehex/ipwhitelist.txt
-│   ├── whitelist-cidr.txt        # CIDR из hxehex/cidrwhitelist.txt
-│   └── custom-cidr.txt           # дополнительные CIDR администратора
-├── xray/
-│   ├── geosite.dat               # сгенерированный доменный whitelist
-│   └── geoip.dat                 # сгенерированный IP/CIDR whitelist
+├── README.en.md
+├── .gitignore
+├── .github/
+│   └── workflows/
+│       └── build.yml
+├── data/
+│   ├── upstream/                  # upstream txt-источники
+│   ├── generated/                 # нормализованные промежуточные данные
+│   ├── geosite/                   # исходные текстовые данные для geosite
+│   └── geoip/                     # исходные текстовые данные для geoip
+├── proto_src/                     # protobuf-описания
+├── proto_out/                     # сгенерированные protobuf Python-модули
 ├── scripts/
-│   ├── fetch-hxehex.sh           # загрузка данных из hxehex-репозитория
-│   ├── build-geodata.py          # сборка geosite.dat / geoip.dat
-│   └── update-openwrt-example.sh # пример обновления geodata на OpenWrt
-└── .github/
-    └── workflows/
-        └── build.yml             # CI: fetch → build → release
+│   ├── fetch_sources.sh
+│   ├── normalize_sources.py
+│   ├── build_geosite_dat.py
+│   ├── build_geoip_dat.py
+│   ├── build_inputs.py
+│   ├── normalize_whitelist.py
+│   └── update-openwrt-example.sh
+└── tests/
+    ├── check_build_inputs.sh
+    ├── check_inputs.sh
+    ├── check_geosite_dat.py
+    └── check_geoip_dat.py
 ```
 
-## Поток данных (pipeline)
+## Pipeline
 
-1. **Импорт whitelists**
+### 1. Загрузка данных
 
-   `scripts/fetch-hxehex.sh`:
+`scripts/fetch_sources.sh` скачивает upstream-списки из GitHub-репозитория источника.[web:148]
 
-   - скачивает `whitelist.txt` → `domains/whitelist-hxehex.txt`;
-   - скачивает `ipwhitelist.txt` → `ip/whitelist-ip.txt`;
-   - скачивает `cidrwhitelist.txt` → `ip/whitelist-cidr.txt`.
+### 2. Нормализация
 
-2. **Сборка geodata**
+`scripts/normalize_sources.py`:
 
-   `scripts/build-geodata.py`:
+- читает домены, IP и CIDR из upstream txt-файлов;
+- удаляет комментарии и мусорные строки;
+- нормализует домены;
+- преобразует одиночные IP в host-CIDR (`/32` для IPv4 и `/128` для IPv6);
+- сохраняет промежуточные данные в `data/generated/`.
 
-   - читает:
-     - `domains/whitelist-hxehex.txt` и `domains/custom.txt`;
-     - `ip/whitelist-ip.txt`, `ip/whitelist-cidr.txt`, `ip/custom-cidr.txt`;
-   - нормализует домены и адреса;
-   - генерирует:
-     - `xray/geosite.dat`;
-     - `xray/geoip.dat`.
+### 3. Сборка geodata
 
-3. **Публикация релиза**
+- `scripts/build_geosite_dat.py` собирает `geosite.dat`;
+- `scripts/build_geoip_dat.py` собирает `geoip.dat`.
 
-   GitHub Actions (`.github/workflows/build.yml`):
+Оба файла содержат тег `RU-WHITELIST`.
 
-   - запускает `fetch-hxehex.sh` и `build-geodata.py`;
-   - создаёт релиз с файлами `geosite.dat` и `geoip.dat`.
+### 4. Публикация
 
-## Использование на OpenWrt с PassWall2
+GitHub Actions workflow `.github/workflows/build.yml`:
 
-### Обновление geodata
+- запускается по расписанию и вручную;
+- скачивает upstream-списки;
+- нормализует их;
+- собирает `geosite.dat` и `geoip.dat`;
+- публикует артефакты в GitHub Releases.
+
+## Почему в whitelist добавляется 2ip.io
+
+Проект **намеренно** добавляет домен `2ip.io` в итоговый whitelist даже в том случае, если его нет в upstream-списках.
+
+Это делается потому, что `2ip.io` используется как **smoke-domain для быстрой проверки работы маршрутизации** на OpenWrt + PassWall2. На практике нужен простой и запоминающийся домен, который можно быстро проверить:
+
+- через браузер;
+- через встроенный rule tester в PassWall2;
+- через ручную проверку того, что whitelist-маршрут действительно уходит в `direct`.
+
+`2ip.io` удобен именно как технический маркер:
+
+- его легко запомнить;
+- его удобно использовать в тестах;
+- он помогает быстро убедиться, что правило whitelist реально срабатывает.
+
+При этом `2ip.ru` и `ifconfig.me` проект **специально не добавляет принудительно**, чтобы smoke-проверка оставалась явной и управляемой.
+
+## Использование в OpenWrt / PassWall2
+
+Пример обновления geodata на роутере:
 
 ```sh
 #!/bin/sh
 set -e
 
-BASE_URL="https://github.com/web3archi/openwrt-passwall2-whitelist-geodata/releases/latest/download"
+BASE_URL="https://github.com/web3archi/openwrt-passwall2-whitelist-geodata/releases/download/geodata-latest"
 
 wget -O /usr/share/v2ray/geoip.dat "${BASE_URL}/geoip.dat"
 wget -O /usr/share/v2ray/geosite.dat "${BASE_URL}/geosite.dat"
@@ -107,19 +150,35 @@ wget -O /usr/share/v2ray/geosite.dat "${BASE_URL}/geosite.dat"
 service passwall2 restart
 ```
 
-### Логика маршрутизации в PassWall2
+Типичная логика маршрутизации в PassWall2:
 
-- категории geosite/geoip, соответствующие whitelist‑набору (из `geosite.dat` / `geoip.dat` этого репозитория), направляются в `direct`;
-- весь остальной трафик, не попадающий в whitelist‑категории, направляется через выбранный proxy‑/VPN‑профиль.
+- `geosite:RU-WHITELIST` → `direct`
+- `geoip:RU-WHITELIST` → `direct`
+- всё остальное → через выбранный proxy/VPN-профиль
 
-Конкретные настройки задаются в конфигурации PassWall2.
+Точная реализация зависит от локальной конфигурации PassWall2 и порядка правил.
 
 ## Статус проекта
 
-Проект находится в стадии начальной реализации и тестирования на связке:
+Проект рабочий и протестирован на целевой конфигурации, указанной выше, но его всё же правильнее считать **практическим кастомным решением**, а не универсальным дистрибутивным пакетом.
 
-- Asus RT‑AX53U / RT‑AX1800U (ramips/mt7621);
-- OpenWrt 23.05.5;
-- PassWall2 (Xray backend).
+Текущий фокус проекта:
 
-Поддержка других устройств и версий OpenWrt требует отдельной проверки.
+- компактные whitelist geodata для слабых роутеров;
+- воспроизводимая сборка через GitHub Actions;
+- стабильные release URL для OpenWrt-интеграции.
+
+## Лицензия и свобода ПО
+
+Проект задуман как **свободное и открытое программное обеспечение**.
+
+- Скрипты, workflow-файлы и проектная обвязка могут использоваться, изменяться и распространяться в рамках лицензии репозитория.
+- Исходные whitelist-данные сохраняют привязку к upstream-источнику: [hxehex/russia-mobile-internet-whitelist](https://github.com/hxehex/russia-mobile-internet-whitelist).[web:148]
+
+Если отдельная лицензия ещё не добавлена, разумный дефолт для такого репозитория — MIT License.
+
+## Примечание
+
+Проект не аффилирован с OpenWrt, PassWall2, Xray или upstream-репозиторием со списками.
+
+Используйте его аккуратно, проверяйте правила маршрутизации на своём железе и относитесь к сгенерированным geodata как к рабочему входу для собственных policy rules.
