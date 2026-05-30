@@ -6,7 +6,7 @@ on:
     - cron: "17 3 * * *"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -32,6 +32,7 @@ jobs:
           pwd
           ls -la
           find . -maxdepth 2 -type d | sort
+
       - name: Fetch upstream sources
         run: |
           chmod +x scripts/fetch_sources.sh
@@ -63,8 +64,11 @@ jobs:
           strings output/geosite.dat | grep '2ip.io'
           strings output/geoip.dat | grep 'RU-WHITELIST'
 
-          echo "=== sha256 ==="
-          sha256sum output/geosite.dat output/geoip.dat
+      - name: Generate checksums
+        run: |
+          cd output
+          sha256sum geosite.dat geoip.dat > SHA256SUMS
+          cat SHA256SUMS
 
       - name: Upload geodata artifacts
         uses: actions/upload-artifact@v4
@@ -73,8 +77,30 @@ jobs:
           path: |
             output/geosite.dat
             output/geoip.dat
+            output/SHA256SUMS
           if-no-files-found: error
           retention-days: 7
+
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: geodata-latest
+          name: RU-WHITELIST geodata latest
+          body: |
+            Auto-updated RU-WHITELIST geodata build.
+
+            Files:
+            - geosite.dat
+            - geoip.dat
+            - SHA256SUMS
+          make_latest: true
+          generate_release_notes: false
+          prerelease: false
+          files: |
+            output/geosite.dat
+            output/geoip.dat
+            output/SHA256SUMS
+          overwrite_files: true
 
       - name: Write workflow summary
         run: |
@@ -93,6 +119,12 @@ jobs:
             echo "### SHA256"
             echo
             echo '```text'
-            sha256sum output/geosite.dat output/geoip.dat
+            cat output/SHA256SUMS
             echo '```'
+            echo
+            echo "### Stable release URLs"
+            echo
+            echo "- [geosite.dat](https://github.com/${{ github.repository }}/releases/download/geodata-latest/geosite.dat)"
+            echo "- [geoip.dat](https://github.com/${{ github.repository }}/releases/download/geodata-latest/geoip.dat)"
+            echo "- [SHA256SUMS](https://github.com/${{ github.repository }}/releases/download/geodata-latest/SHA256SUMS)"
           } >> "$GITHUB_STEP_SUMMARY"
