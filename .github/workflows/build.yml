@@ -1,35 +1,94 @@
-name: Build and release whitelist geodata
+name: Build RU-WHITELIST geodata
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "17 3 * * *"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch hxehex whitelist sources
-        run: |
-          ./scripts/fetch-hxehex.sh
-
-      - name: Build geodata
-        run: |
-          python3 ./scripts/build-geodata.py
-
-      - name: Create release
-        uses: softprops/action-gh-release@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          tag_name: geodata-${{ github.run_number }}
-          name: whitelist geodata ${{ github.run_number }}
-          generate_release_notes: true
-          files: |
-            xray/geosite.dat
-            xray/geoip.dat
+          python-version: "3.11"
+
+      - name: Show workspace
+        run: |
+          pwd
+          ls -la
+          find . -maxdepth 2 -type d | sort
+
+      - name: Fetch upstream sources
+        run: |
+          chmod +x scripts/fetch_sources.sh
+          ./scripts/fetch_sources.sh
+
+      - name: Normalize sources
+        run: |
+          python3 ./scripts/normalize_sources.py
+
+      - name: Build geosite.dat
+        run: |
+          python3 ./scripts/build_geosite_dat.py
+
+      - name: Build geoip.dat
+        run: |
+          python3 ./scripts/build_geoip_dat.py
+
+      - name: Verify outputs
+        run: |
+          test -f output/geosite.dat
+          test -f output/geoip.dat
+
+          echo "=== output sizes ==="
+          ls -lh output/
+
+          echo "=== smoke tests ==="
+          grep -n "2ip.io" data/generated/domains.txt
+          strings output/geosite.dat | grep 'RU-WHITELIST'
+          strings output/geosite.dat | grep '2ip.io'
+          strings output/geoip.dat | grep 'RU-WHITELIST'
+
+          echo "=== sha256 ==="
+          sha256sum output/geosite.dat output/geoip.dat
+
+      - name: Upload geodata artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ru-whitelist-geodata
+          path: |
+            output/geosite.dat
+            output/geoip.dat
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Write workflow summary
+        run: |
+          {
+            echo "## RU-WHITELIST geodata build"
+            echo
+            echo "- Trigger: \`${{ github.event_name }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo
+            echo "### Output files"
+            echo
+            echo '```text'
+            ls -lh output/
+            echo '```'
+            echo
+            echo "### SHA256"
+            echo
+            echo '```text'
+            sha256sum output/geosite.dat output/geoip.dat
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
