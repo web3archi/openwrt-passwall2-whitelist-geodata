@@ -22,12 +22,16 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install protobuf
+
       - name: Show workspace
         run: |
           pwd
           ls -la
           find . -maxdepth 2 -type d | sort
-
       - name: Fetch upstream sources
         run: |
           chmod +x scripts/fetch_sources.sh
