@@ -1,39 +1,20 @@
+# Build artifacts
+data/generated/
+output/
+*.log
+
 # Python
 __pycache__/
 *.py[cod]
 *.pyo
-*.pyd
-.pytest_cache/
-.mypy_cache/
 
-# Virtual environments
+# Virtual env
 .venv/
+env/
 venv/
 
-# Editors / OS
-.DS_Store
-Thumbs.db
-.idea/
+# Editors / IDE
 .vscode/
-
-# Local-only labs and experiments
-geoip-lab/
-geosite-lab/
-vendor/
-work/
-router-test/
-.tmp-backup/
-
-# Downloaded and generated data
-data/upstream/
-data/generated/
-
-# Build artifacts
-output/*.dat
-xray/geosite.dat
-
-# Backup files
-*.bak
-
-# Logs
-*.log
+.idea/
+*.swp
+*~
