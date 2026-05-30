@@ -1,1 +1,0 @@
-# Этот файл обновляется скриптом scripts/fetch-hxehex.sh
