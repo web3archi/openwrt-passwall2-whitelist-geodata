@@ -1,0 +1,4 @@
+# RU-WHITELIST
+# Обязательный smoke-test:
+2ip.io
+
