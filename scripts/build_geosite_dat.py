@@ -10,9 +10,9 @@ from pathlib import Path
 import sys
 
 REPO = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO / "geosite-lab"))
+sys.path.insert(0, str(REPO / "proto_out"))
 
-import common_pb2  # из geosite-lab
+from app.router.routercommon import common_pb2
 
 SRC = REPO / "data" / "generated" / "domains.txt"
 OUT = REPO / "output" / "geosite.dat"
@@ -44,7 +44,6 @@ def main():
 
     for domain in domains:
         item = site.domain.add()
-        # Тип домена: Plain (как и раньше)
         item.type = common_pb2.Domain.Plain
         item.value = domain
 

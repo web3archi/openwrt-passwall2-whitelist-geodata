@@ -11,9 +11,9 @@ import ipaddress
 import sys
 
 REPO = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO / "geoip-lab"))
+sys.path.insert(0, str(REPO / "proto_out"))
 
-import geoip_pb2  # из geoip-lab
+import geoip_pb2
 
 SRC = REPO / "data" / "generated" / "cidrs.txt"
 OUT = REPO / "output" / "geoip.dat"
