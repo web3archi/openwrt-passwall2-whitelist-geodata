@@ -69,6 +69,12 @@ def normalize_cidr(line: str) -> str | None:
     except ValueError:
         return None
 
+def ip_to_host_cidr(ip_str: str) -> str:
+    ip = ipaddress.ip_address(ip_str)
+    if ip.version == 4:
+        return f"{ip}/32"
+    return f"{ip}/128"
+
 def write_sorted(path: Path, items):
     path.write_text(
         "\n".join(sorted(items)) + ("\n" if items else ""),
@@ -90,14 +96,19 @@ def main():
     domains.add("2ip.io")
     # 2ip.ru и ifconfig.me сознательно НЕ добавляем
 
+    ip_host_cidrs = {ip_to_host_cidr(ip) for ip in ips}
+    all_cidrs = cidrs | ip_host_cidrs
+
     write_sorted(OUT / "domains.txt", domains)
     write_sorted(OUT / "ips.txt", ips)
-    write_sorted(OUT / "cidrs.txt", cidrs)
+    write_sorted(OUT / "cidrs.txt", all_cidrs)
 
     print("[normalize] done")
     print(f"[normalize] domains: {len(domains)}")
     print(f"[normalize] ips: {len(ips)}")
-    print(f"[normalize] cidrs: {len(cidrs)}")
+    print(f"[normalize] cidrs_from_cidr_file: {len(cidrs)}")
+    print(f"[normalize] cidrs_from_ip_file: {len(ip_host_cidrs)}")
+    print(f"[normalize] cidrs_total: {len(all_cidrs)}")
 
 if __name__ == "__main__":
     main()
