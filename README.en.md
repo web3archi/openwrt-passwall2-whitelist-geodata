@@ -75,26 +75,29 @@ At the same time, `2ip.ru` and `ifconfig.me` are intentionally **not** force-add
 
 ## Using with OpenWrt / PassWall2
 
-Example router-side update:
+In the reference setup, geodata are configured via the built-in update mechanism in PassWall2:
 
-```sh
-#!/bin/sh
-set -e
+1. Open **PassWall2 → Rule Manage**.
+2. In the GeoIP/Geosite update section, locate the **bottom Custom fields**:
+   - **GeoIP Update URL (Custom)**
+   - **Geosite Update URL (Custom)**
+3. Set custom URLs pointing to this repository’s release in those Custom fields, for example:
 
-BASE_URL="https://github.com/web3archi/openwrt-passwall2-whitelist-geodata/releases/download/geodata-latest"
+   ```text
+   GeoIP Update URL (Custom):   https://github.com/web3archi/openwrt-passwall2-whitelist-geodata/releases/download/geodata-latest/geoip.dat
+   Geosite Update URL (Custom): https://github.com/web3archi/openwrt-passwall2-whitelist-geodata/releases/download/geodata-latest/geosite.dat
+   ```
+4. Press Enter in each field to confirm the value, then click **Save & Apply**.
 
-wget -O /usr/share/v2ray/geoip.dat "${BASE_URL}/geoip.dat"
-wget -O /usr/share/v2ray/geosite.dat "${BASE_URL}/geosite.dat"
+After that, PassWall2 will download and update `geoip.dat` / `geosite.dat` from this repository using its own geodata update mechanism. No additional shell scripts on the router side are required in the basic scenario.
 
-service passwall2 restart
-```
-
-Typical PassWall2 routing idea:
+A typical routing idea when using these geodata:
 
 - `geosite:RU-WHITELIST` → `direct`
 - `geoip:RU-WHITELIST` → `direct`
 - everything else → selected proxy/VPN profile
 
+The exact rule order and implementation depend on the local PassWall2 configuration.
 ## License and software freedom
 
 This project is intended to be **free and open-source software**.

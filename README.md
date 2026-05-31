@@ -137,21 +137,24 @@ GitHub Actions workflow `.github/workflows/build.yml`:
 
 ## Использование в OpenWrt / PassWall2
 
-Пример обновления geodata на роутере:
+В тестовой конфигурации geodata подключаются через стандартный механизм обновления в PassWall2:
 
-```sh
-#!/bin/sh
-set -e
+1. Открыть **PassWall2 → Rule Manage**.
+2. В блоке обновления GeoIP/Geosite найти **нижние поля Custom**:
+   - **GeoIP Update URL (Custom)**
+   - **Geosite Update URL (Custom)**
+3. В этих полях Custom указать свои значения, указывающие на релиз этого репозитория, например:
 
-BASE_URL="https://github.com/web3archi/openwrt-passwall2-whitelist-geodata/releases/download/geodata-latest"
+   ```text
+   GeoIP Update URL (Custom):   https://github.com/web3archi/openwrt-passwall2-whitelist-geodata/releases/download/geodata-latest/geoip.dat
+   Geosite Update URL (Custom): https://github.com/web3archi/openwrt-passwall2-whitelist-geodata/releases/download/geodata-latest/geosite.dat
+   ```
 
-wget -O /usr/share/v2ray/geoip.dat "${BASE_URL}/geoip.dat"
-wget -O /usr/share/v2ray/geosite.dat "${BASE_URL}/geosite.dat"
+4. Нажать Enter в каждом поле (чтобы LuCI зафиксировал изменения), затем **Save & Apply**.
 
-service passwall2 restart
-```
+После этого PassWall2 будет скачивать и обновлять `geoip.dat` / `geosite.dat` из этого репозитория по встроенному механизму. Дополнительные скрипты на стороне роутера в базовом сценарии не нужны.
 
-Типичная логика маршрутизации в PassWall2:
+Типичная логика маршрутизации в PassWall2 при использовании этих geodata:
 
 - `geosite:RU-WHITELIST` → `direct`
 - `geoip:RU-WHITELIST` → `direct`
