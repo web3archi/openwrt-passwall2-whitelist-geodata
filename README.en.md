@@ -42,18 +42,34 @@ Other routers and OpenWrt versions may work too, but should be treated as unveri
 
 ## Repository layout
 
-```text
 openwrt-passwall2-whitelist-geodata/
 ├── README.md
 ├── README.en.md
 ├── LICENSE
+├── .gitignore
 ├── .github/
+│   └── workflows/
+│       └── build.yml
 ├── data/
-├── proto_src/
-├── proto_out/
+│   ├── upstream/                  # upstream txt sources
+│   ├── generated/                 # normalized intermediate data
+│   ├── geosite/                   # source text data for geosite
+│   └── geoip/                     # source text data for geoip
+├── proto_src/                     # protobuf definitions
+├── proto_out/                     # generated protobuf Python modules
 ├── scripts/
+│   ├── fetch_sources.sh
+│   ├── normalize_sources.py
+│   ├── build_geosite_dat.py
+│   ├── build_geoip_dat.py
+│   ├── build_inputs.py
+│   ├── normalize_whitelist.py
+│   └── update-openwrt-example.sh
 └── tests/
-```
+    ├── check_build_inputs.sh
+    ├── check_inputs.sh
+    ├── check_geosite_dat.py
+    └── check_geoip_dat.py
 
 ## Data pipeline
 

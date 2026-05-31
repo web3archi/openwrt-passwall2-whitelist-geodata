@@ -53,6 +53,8 @@
 
 ## Структура репозитория
 
+## Структура репозитория
+
 ```text
 openwrt-passwall2-whitelist-geodata/
 ├── README.md
@@ -83,7 +85,6 @@ openwrt-passwall2-whitelist-geodata/
     ├── check_geosite_dat.py
     └── check_geoip_dat.py
 ```
-
 ## Pipeline
 
 ### 1. Загрузка данных
