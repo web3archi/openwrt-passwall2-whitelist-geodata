@@ -98,6 +98,27 @@ A typical routing idea when using these geodata:
 - everything else → selected proxy/VPN profile
 
 The exact rule order and implementation depend on the local PassWall2 configuration.
+
+### Recommended rule pattern in PassWall2
+
+In practice, it is often simpler to use a **single rule** that matches both domain and IP geodata:
+
+- `geosite:RU-WHITELIST` → `direct`
+- `geoip:RU-WHITELIST` → `direct`
+
+instead of two separate rules (“geosite only” and “geoip only”). This tends to keep the configuration easier to reason about and reduces the chance of subtle rule ordering issues.
+
+### Note on applying changes
+
+Depending on the exact OpenWrt/PassWall2 build, changes related to updated geodata and routing rules may not always take effect immediately after a regular **Save & Apply** in LuCI.
+
+If, after updating GeoIP/Geosite and saving the configuration, the expected routing behavior does not show up, it is reasonable to:
+
+1. verify that the new `geoip.dat` / `geosite.dat` files are actually present on the router;
+2. if needed, perform a **full device reboot** so that PassWall2/Xray start cleanly with the updated geodata and configuration.
+
+For most setups a simple Save & Apply is enough, but in more complex cases a reboot helps eliminate any caching or partially restarted daemon effects.
+
 ## License and software freedom
 
 This project is intended to be **free and open-source software**.
