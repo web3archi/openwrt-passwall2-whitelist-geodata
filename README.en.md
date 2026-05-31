@@ -42,6 +42,9 @@ Other routers and OpenWrt versions may work too, but should be treated as unveri
 
 ## Repository layout
 
+## Repository layout
+
+```text
 openwrt-passwall2-whitelist-geodata/
 ├── README.md
 ├── README.en.md
@@ -70,6 +73,7 @@ openwrt-passwall2-whitelist-geodata/
     ├── check_inputs.sh
     ├── check_geosite_dat.py
     └── check_geoip_dat.py
+```
 
 ## Data pipeline
 
